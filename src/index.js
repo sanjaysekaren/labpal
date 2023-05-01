@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+import './styles.scss';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ThemeProvider } from '@emotion/react';
@@ -8,41 +9,27 @@ import theme from './theme';
 // import { Route, Router } from 'react-router-dom';
 import AddPatientComponent from './components/AddPatient';
 import {
-  createBrowserRouter,
-  createRoutesFromElements,
   Route,
   BrowserRouter as Router,
-  RouterProvider,
   Routes,
 } from "react-router-dom";
+import HeaderComponent from './components/Header';
+import LoginComponent from './components/Login';
+import PatientComponent from './components/PatientDetails';
 
-// const router = createBrowserRouter(
-//   createRoutesFromElements(
-//     // <Route exact path="/" element={<App />}>
-//     //   <Route exact path="/add-patient" element={<AddPatientComponent />} />
-//     // </Route>
-//         <Router>
-//       <Route exact path="/" Component={App}>
-//       </Route>
-//       <Route path="/add-patient" Component={AddPatientComponent}>
-//       </Route>
-//     </Router>
-//   )
-// );
-
-// ReactDOM.createRoot(document.getElementById("root")).render(
-//   <React.StrictMode>
-//     <RouterProvider router={router} />
-//   </React.StrictMode>
-// );
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <ThemeProvider theme={theme}>
+    <HeaderComponent/>
     <Router>
       <Routes>
       <Route exact path="/" Component={App}>
       </Route>
+      <Route path="/login" Component={LoginComponent}>
+      </Route>
       <Route path="/add-patient" Component={AddPatientComponent}>
+      </Route>
+      <Route path="/patient-details/:id" Component={PatientComponent}>
       </Route>
       </Routes>
     </Router>

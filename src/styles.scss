@@ -1,0 +1,164 @@
+.header {
+    .header-content {
+        flex-direction: row;
+        background: transparent;
+        box-shadow: none;
+        .header-logo {
+            margin: 7px;
+            img {
+                border-radius: 4px;
+            }
+        }
+        .header-left-container {
+            h1 {
+                color: white;
+            }
+        }
+        .header-right-container {
+            margin-right: 0;
+            margin-left: auto;
+            display: flex;
+            flex-direction: row-reverse;
+            
+            .account-container {
+                display: flex;
+                flex-direction: column ;
+                margin-right: 10px;
+                svg {
+                    margin: 10px 20px 0px;
+                }
+                .icon-text{
+                    text-align: center;
+                    color: white;
+                    font-size: 12px;
+                    font-weight: 500;
+                }
+            }
+        }
+    }
+}
+.App {
+    .main-content { 
+        position: relative;
+        z-index: 10;
+        .patient-search-box {
+            background-color: white;
+            border-radius: 4px;
+        }
+        .add-patient-button-container {
+            button {
+                color: white;
+                background-color:   #39ac39;
+                a {
+                    color: white;
+                    text-decoration: none;
+                }
+            }
+        }
+    }
+    .patients-search-results-container {
+        height: 70vh;
+        overflow: auto;
+    }
+}
+
+.card-result-container {
+    position: relative;
+    z-index: 10;
+    color: red;
+    margin: 15px;
+    text-transform: capitalize;
+    .MuiCardHeader-title {
+        font-size: 28px;
+        font-weight: 700;
+    }
+    .card-result-item {
+        text-align: center;
+        width: 50%;
+        margin: 0 auto;
+        .card-content-header {
+            font-size: 24px;
+            font-weight: 500;
+            text-align: left;
+            margin: 0 30px 30px;
+        }
+        .card-content-fields {
+            margin-bottom: 7px;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+        }
+    }
+    span {
+        text-align: right;
+    }
+    span:first-child {
+        text-align: left;
+        padding: 0 30px;
+    }
+}
+
+.add-patient-form-container {
+    padding: 30px;
+    .add-patient-form-content {
+        .add-patient-form-content-field {
+            margin: 10px 15%;
+            display: flex;
+            .add-patient-form-label {
+                flex: 1 1 auto;
+                min-width: 30%;
+            }
+            .add-patient-form-value {
+                flex: 1 1 75%;
+                select {
+                    color: black;
+                }
+                &.gender-select {
+                    color: black;
+                }
+                .MuiOutlinedInput-notchedOutline {
+                    span {
+                        color: black;
+                    }
+                }
+            }
+        }
+    }
+    .add-patient-button-container {
+        display: block;
+        text-align: center;
+        margin: 10px auto;
+        .add-patient-submit-button {
+            margin: 10px;
+        }
+        .add-patient-reset-button {
+            margin: 10px;
+        }
+    }
+}
+
+.login-container {
+    margin: 20px 30%;
+    .login-content{
+
+        .login-username-field {
+            margin-bottom: 20px;
+        }
+        .login-password-field {
+
+        }
+    }
+    .login-buttton {
+        display: block;
+        margin: 20px auto;
+    }
+}
+
+.upload-container {
+    width: 80%;
+    margin: 20px auto;
+    .upload-container-button {
+        display: flex;
+        justify-content: center;
+    }
+}
