@@ -10,7 +10,7 @@ import theme from './theme';
 import AddPatientComponent from './components/AddPatient';
 import {
   Route,
-  BrowserRouter as Router,
+  HashRouter as Router,
   Routes,
 } from "react-router-dom";
 import HeaderComponent from './components/Header';
