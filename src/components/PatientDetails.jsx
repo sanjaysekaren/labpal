@@ -63,18 +63,13 @@ const PatientComponent = () => {
     if (fileResponse.status === 200) {
       setFileId(fileResponse.data.fileId);
       fileUploadUrl = fileResponse.data.fileUploadUrl;
-      console.log("url", fileUploadUrl);
-      let fileUploadResponse = await axios.put(
-        fileUploadUrl,
-        {
-          body: file,
+      const dataForm = new FormData();
+      dataForm.append("file", file);
+      let fileUploadResponse = await axios.put(fileUploadUrl, dataForm, {
+        headers: {
+          "Content-Type": "multipart/form-data",
         },
-        {
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
-      );
+      });
       if (fileUploadResponse === 200) {
         console.log("uploaded", fileUploadResponse);
         navigate(`/patient-details/${patientData.id}`);
@@ -89,7 +84,6 @@ const PatientComponent = () => {
           <Card className="upload-container">
             <CardHeader title="Report:"></CardHeader>
             <CardContent className="upload-container-button">
-              
               <div className="upload-area">
                 <div>{file && `${file.name} - ${file.type}`}</div>
                 <Button
@@ -106,7 +100,11 @@ const PatientComponent = () => {
                   />
                 </Button>
               </div>
-              <Button className="upload-report-button" variant="contained" onClick={handleFileUpload}>
+              <Button
+                className="upload-report-button"
+                variant="contained"
+                onClick={handleFileUpload}
+              >
                 Upload Report
               </Button>
             </CardContent>
