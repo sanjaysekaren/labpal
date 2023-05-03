@@ -23,7 +23,7 @@ function App() {
     axios.defaults.headers.common[
       "Authorization"
     ] = `Bearer ${sessionStorage.getItem("session_token")}`;
-    let response = await axios.get(`${root_url}/patients`);
+    let response = await axios.get(`${root_url}/patients?phoneNumber=${patientId}`);
     setPatientDetails(response.data);
   };
   const handlePatientInput = (e) => {
@@ -38,7 +38,7 @@ function App() {
             <Link to="/add-patient">Add New Patient</Link>
           </Button>
         </div>
-        <Divider light textAlign="left">
+        <Divider textAlign="left">
           Search For Patient Details
         </Divider>
         <Container className="mt-3">

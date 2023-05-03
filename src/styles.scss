@@ -46,6 +46,7 @@
             border-radius: 4px;
         }
         .add-patient-button-container {
+            margin: 30px;
             button {
                 color: white;
                 background-color:   #39ac39;
@@ -74,7 +75,6 @@
     }
     .card-result-item {
         text-align: center;
-        width: 50%;
         margin: 0 auto;
         .card-content-header {
             font-size: 24px;
@@ -138,7 +138,8 @@
 }
 
 .login-container {
-    margin: 20px 30%;
+    margin: 20px auto;
+    width: 70%;
     .login-content{
 
         .login-username-field {
@@ -159,6 +160,23 @@
     margin: 20px auto;
     .upload-container-button {
         display: flex;
-        justify-content: center;
+        flex-direction: column;
+        .upload-area {
+            width: 400px;
+            height: 200px;
+            margin: 0 auto;
+            border: 1px dotted rgb(112, 156, 238);
+            label {
+                margin-left: 115px;
+                margin-top: 100px;
+            }
+        }
+        .upload-report-button {
+            color: white;
+            background-color:   #39ac39;
+            border: none;
+            width: 200px;
+            margin: 15px;
+        }
     }
 }

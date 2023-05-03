@@ -67,7 +67,6 @@ const AddPatientComponent = () => {
       phoneNumber: state.patientPhoneNumber,
     };
     let response = await axios.post(root_url + "/patients", payload);
-    console.log(response);
     if(response.status === 200) { 
       navigate("/");
     }
