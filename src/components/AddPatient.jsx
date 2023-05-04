@@ -55,9 +55,6 @@ const AddPatientComponent = () => {
   const navigate = useNavigate();
 
   const handleAddPatient = async () => {
-    axios.defaults.headers.common[
-      "Authorization"
-    ] = `Bearer ${sessionStorage.getItem("session_token")}`;
     const payload = {
       name: state.patientName,
       age: state.patientAge,
@@ -66,15 +63,19 @@ const AddPatientComponent = () => {
       address: state.patientAddress,
       phoneNumber: state.patientPhoneNumber,
     };
-    let response = await axios.post(root_url + "/patients", payload);
-    if(response.status === 200) { 
+    let response = await axios.post(root_url + "/patients", payload, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("session_token")}`,
+      },
+    });
+    if (response.status === 200) {
       navigate("/");
     }
   };
 
   const handleReset = () => {
     dispatch({ type: "handleReset" });
-  };  
+  };
 
   const handleGenderChange = (e) => {
     dispatch({ type: "handleGender", patientGender: e.target.value });
@@ -112,15 +113,6 @@ const AddPatientComponent = () => {
           </div>
           <div className="add-patient-form-content-field">
             <label className="add-patient-form-label">Gender</label>
-            {/* <TextField
-              variant="outlined"
-              className="add-patient-form-value"
-              placeholder="Enter Patient Gender"
-              onChange={(e) =>
-                dispatch({ type: "handleGender", patientGender: e.target.value })
-              }
-              value={state.PatientGender}
-            ></TextField> */}
             <Select
               className="add-patient-form-value gender-select"
               value={state.PatientGender}
@@ -129,7 +121,9 @@ const AddPatientComponent = () => {
               <MenuItem disabled value={""}>
                 <em>Select Gender</em>
               </MenuItem>
-              <MenuItem value={"male"} selected>Male</MenuItem>
+              <MenuItem value={"male"} selected>
+                Male
+              </MenuItem>
               <MenuItem value={"female"}>Female</MenuItem>
               <MenuItem value={"others"}>Others</MenuItem>
             </Select>

@@ -20,10 +20,14 @@ function App() {
   const [patientDetails, setPatientDetails] = useState([]);
 
   const handleSearchButton = async (e) => {
-    axios.defaults.headers.common[
-      "Authorization"
-    ] = `Bearer ${sessionStorage.getItem("session_token")}`;
-    let response = await axios.get(`${root_url}/patients?phoneNumber=${patientId}`);
+    let response = await axios.get(
+      `${root_url}/patients?phoneNumber=${patientId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("session_token")}`,
+        },
+      }
+    );
     setPatientDetails(response.data);
   };
   const handlePatientInput = (e) => {
@@ -38,9 +42,7 @@ function App() {
             <Link to="/add-patient">Add New Patient</Link>
           </Button>
         </div>
-        <Divider textAlign="left">
-          Search For Patient Details
-        </Divider>
+        <Divider textAlign="left">Search For Patient Details</Divider>
         <Container className="mt-3">
           <TextField
             id="filled-search"
@@ -59,12 +61,10 @@ function App() {
         </Container>
       </div>
       <div className="patients-search-results-container">
-      {!!patientDetails.length &&
-        patientDetails.map((patient) => {
-          return (
-            <UserResultComponent patient={patient}  key={patient.id}/>
-          );
-        })}
+        {!!patientDetails.length &&
+          patientDetails.map((patient) => {
+            return <UserResultComponent patient={patient} key={patient.id} />;
+          })}
       </div>
     </div>
   );

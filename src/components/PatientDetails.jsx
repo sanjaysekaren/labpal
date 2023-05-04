@@ -1,32 +1,36 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { root_url } from "../constant";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Button, Card, CardContent, CardHeader } from "@mui/material";
 import UserResultComponent from "./UserResultCard";
 
 const PatientComponent = () => {
   const location = useLocation();
   let userId = location.state.id;
-  const navigate = useNavigate();
 
   const [patientData, setPatientData] = useState({});
   const [reports, setReports] = useState([]);
   const [file, setFile] = useState();
-  const [fileId, setFileId] = useState();
   useEffect(() => {
-    axios.defaults.headers.common[
-      "Authorization"
-    ] = `Bearer ${sessionStorage.getItem("session_token")}`;
     async function fetchPatientData() {
-      const response = await axios.get(`${root_url}/patients/${userId}`);
+      const response = await axios.get(`${root_url}/patients/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("session_token")}`,
+        },
+      });
       if (response.status === 200) {
         setPatientData(response.data);
       }
     }
     async function getPatientReports() {
       const response = await axios.get(
-        `${root_url}/reports?patientId=${userId}`
+        `${root_url}/reports?patientId=${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("session_token")}`,
+          },
+        }
       );
       if (response.status === 200) {
         setReports(response.data);
@@ -37,7 +41,11 @@ const PatientComponent = () => {
   }, [userId]);
 
   const handleGetReport = async (id) => {
-    let response = await axios.get(`${root_url}/reports/${id}`);
+    let response = await axios.get(`${root_url}/reports/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("session_token")}`,
+      },
+    });
     if (response.status === 200) {
       open(response.data.url);
     }
@@ -58,23 +66,54 @@ const PatientComponent = () => {
     if (!file) {
       return;
     }
-    let fileResponse = await axios.post(`${root_url}/reports:upload`);
-    let fileUploadUrl;
+    let fileResponse = await getUploadFileDetails();
     if (fileResponse.status === 200) {
-      setFileId(fileResponse.data.fileId);
-      fileUploadUrl = fileResponse.data.fileUploadUrl;
-      const dataForm = new FormData();
-      dataForm.append("file", file);
-      let fileUploadResponse = await axios.put(fileUploadUrl, dataForm, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      if (fileUploadResponse === 200) {
-        console.log("uploaded", fileUploadResponse);
-        navigate(`/patient-details/${patientData.id}`);
-      }
+      uploadFileBasedOnURL(
+        fileResponse.data.fileUploadUrl,
+        fileResponse.data.fileId
+      );
     }
+  };
+
+  const getUploadFileDetails = async () => {
+    return await axios.post(
+      `${root_url}/reports:upload`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("session_token")}`,
+        },
+      }
+    );
+  };
+
+  const uploadFileBasedOnURL = async (uploadUrl, fileId) => {
+    const dataForm = new FormData();
+    dataForm.append("data", file);
+    let fileUploadResponse = await axios.put(uploadUrl, dataForm, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    if (fileUploadResponse.status === 200) {
+      await PostReportDetailsAfterFileUpload(fileId);
+    }
+  };
+
+  const PostReportDetailsAfterFileUpload = async (fileId) => {
+    await axios.post(
+      `${root_url}/reports`,
+      {
+        patientId: patientData.id,
+        fileId: fileId,
+        diagnosticsId: 1,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("session_token")}`,
+        },
+      }
+    );
   };
   return (
     <div>
