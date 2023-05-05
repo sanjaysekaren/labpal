@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 import {
   Button,
   Card,
@@ -19,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 const initialState = {
   patientName: "",
   patientAge: "",
-  patientGender: "Male",
+  patientGender: "",
   patientDOB: dayjs("2023-04-29"),
   patientAddress: "",
   patientPhoneNumber: "",
@@ -54,6 +54,13 @@ const AddPatientComponent = () => {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
   const handleAddPatient = async () => {
     const payload = {
       name: state.patientName,
@@ -65,7 +72,7 @@ const AddPatientComponent = () => {
     };
     let response = await axios.post(root_url + "/patients", payload, {
       headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("session_token")}`,
+        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
       },
     });
     if (response.status === 200) {
@@ -186,6 +193,15 @@ const AddPatientComponent = () => {
             onClick={handleReset}
           >
             Reset
+          </Button>
+          <Button
+            variant="outlined"
+            className="add-patient-reset-button"
+            onClick={() => {
+              navigate("/");
+            }}
+          >
+            Back
           </Button>
         </div>
       </Card>

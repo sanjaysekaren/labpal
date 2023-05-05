@@ -9,9 +9,9 @@ import {
   TextField,
   Toolbar,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UserResultComponent from "./components/UserResultCard";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { root_url } from "./constant";
 import axios from "axios";
 
@@ -19,20 +19,46 @@ function App() {
   const [patientId, setPatientId] = useState("");
   const [patientDetails, setPatientDetails] = useState([]);
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    async function getPatientDetails() {
+      let response = await axios.get(
+        `${root_url}/patients?phoneNumber=&limit=10`,
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+          },
+        }
+      );
+      setPatientDetails(response.data);
+    }
+    getPatientDetails();
+  },[]);
+
   const handleSearchButton = async (e) => {
     let response = await axios.get(
       `${root_url}/patients?phoneNumber=${patientId}`,
       {
         headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("session_token")}`,
+          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
         },
       }
     );
     setPatientDetails(response.data);
   };
+
   const handlePatientInput = (e) => {
     setPatientId(e.target.value);
   };
+
   return (
     <div className="App">
       <div className="header-image-container"></div>
@@ -60,7 +86,7 @@ function App() {
           </Button>
         </Container>
       </div>
-      <div className="patients-search-results-container">
+      <div className="patients-search-results-container scrollbar">
         {!!patientDetails.length &&
           patientDetails.map((patient) => {
             return <UserResultComponent patient={patient} key={patient.id} />;

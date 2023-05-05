@@ -22,7 +22,7 @@ const LoginComponent = () => {
     }
     const response = await axios.post(root_url+"/technicians:login",payload);
     if(response.status === 200){
-        sessionStorage.setItem("session_token",response.data.token);
+        sessionStorage.setItem("token",response.data.token);
         navigate("/")
     } else {
         navigate("/login");

@@ -1,22 +1,33 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { root_url } from "../constant";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Card, CardContent, CardHeader } from "@mui/material";
 import UserResultComponent from "./UserResultCard";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import DownloadForOfflineIcon from "@mui/icons-material/DownloadForOffline";
 
 const PatientComponent = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   let userId = location.state.id;
 
   const [patientData, setPatientData] = useState({});
   const [reports, setReports] = useState([]);
   const [file, setFile] = useState();
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
   useEffect(() => {
     async function fetchPatientData() {
       const response = await axios.get(`${root_url}/patients/${userId}`, {
         headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("session_token")}`,
+          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
         },
       });
       if (response.status === 200) {
@@ -28,7 +39,7 @@ const PatientComponent = () => {
         `${root_url}/reports?patientId=${userId}`,
         {
           headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("session_token")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
           },
         }
       );
@@ -43,7 +54,7 @@ const PatientComponent = () => {
   const handleGetReport = async (id) => {
     let response = await axios.get(`${root_url}/reports/${id}`, {
       headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("session_token")}`,
+        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
       },
     });
     if (response.status === 200) {
@@ -81,7 +92,7 @@ const PatientComponent = () => {
       {},
       {
         headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("session_token")}`,
+          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
         },
       }
     );
@@ -110,7 +121,7 @@ const PatientComponent = () => {
       },
       {
         headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("session_token")}`,
+          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
         },
       }
     );
@@ -120,56 +131,78 @@ const PatientComponent = () => {
       {!!patientData.id && (
         <div>
           <UserResultComponent patient={patientData} />
-          <Card className="upload-container">
-            <CardHeader title="Report:"></CardHeader>
-            <CardContent className="upload-container-button">
-              <div className="upload-area">
-                <div>{file && `${file.name} - ${file.type}`}</div>
-                <Button
-                  variant="contained"
-                  component="label"
-                  onClick={handleFileUpload}
-                >
-                  Select Report
-                  <input
-                    hidden
-                    accept="image/*"
-                    type="file"
-                    onChange={handleFileChange}
-                  />
-                </Button>
-              </div>
-              <Button
-                className="upload-report-button"
-                variant="contained"
-                onClick={handleFileUpload}
-              >
-                Upload Report
-              </Button>
-            </CardContent>
-          </Card>
-          {!!reports.length ? (
-            <Card className="reports-container">
-              <CardHeader
-                title={`List of Available Reports for ${patientData.name}`}
-              ></CardHeader>
-              <CardContent>
-                {reports.map((report) => {
-                  return (
-                    <div
-                      className="report-name"
-                      key={`report-${report.id}`}
-                      onClick={() => handleGetReport(report.id)}
-                    >
-                      {report.name}
+          <div className="patient-details-container">
+            {!!reports.length ? (
+              <Card className="reports-container">
+                <CardHeader
+                  title={`List of Available Reports for ${patientData.name}`}
+                ></CardHeader>
+                <CardContent className="reports-list-container">
+                  {reports.map((report) => {
+                    return (
+                      <div
+                        className="report-content"
+                        key={`report-${report.id}`}
+                      >
+                        <span className="report-name">{report.name}</span>
+                        <span className="report-created-date">
+                          {new Date(report.createdAt).toDateString()}
+                        </span>
+                        <span className="report-download">
+                          <DownloadForOfflineIcon
+                            onClick={() => handleGetReport(report.id)}
+                            sx={{ color: "#62ad62", fontSize: 30 }}
+                          />
+                        </span>
+                        <span className="report-delete">
+                          <DeleteOutlineIcon
+                            sx={{ color: "#e53d3d", fontSize: 30 }}
+                          />
+                        </span>
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+            ) : (
+              <div>No Reports found for this Patient</div>
+            )}
+            <Card className="upload-container">
+              <CardHeader title="Report:"></CardHeader>
+              <CardContent className="upload-container-button">
+                <div className="upload-area">
+                  {!!file && <div className="selected-file">{file && `${file.name} - ${file.type}`}</div>}
+                  <div className="buttons-container">
+                    
+                  <Button
+                    variant="contained"
+                    component="label"
+                    onClick={handleFileUpload}
+                  >
+                    Select Report
+                    <input
+                      hidden
+                      accept="image/*"
+                      type="file"
+                      onChange={handleFileChange}
+                    />
+                  </Button>
+                  {!!file && <Button className="remove-file" onClick={() => setFile(null)}>
+                    Remove File
+                  </Button>}
                     </div>
-                  );
-                })}
+                </div>
+                <Button
+                  className="upload-report-button"
+                  variant="contained"
+                  onClick={handleFileUpload}
+                  disabled={!file}
+                >
+                  Upload Report
+                </Button>
               </CardContent>
             </Card>
-          ) : (
-            <div>No Reports found for this Patient</div>
-          )}
+          </div>
         </div>
       )}
     </div>
