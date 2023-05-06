@@ -15,7 +15,8 @@ const LoginComponent = () => {
   let password = useRef("");
   const navigate = useNavigate();
 
-  const handleLoginSubmit = async() => {
+  const handleLoginSubmit = async(e) => {
+    e.preventDefault();
     const payload = {
         "username": username.current,
         "password": password.current
@@ -41,6 +42,7 @@ const LoginComponent = () => {
               id="username"
               placeholder="Enter Username"
               inputRef={username}
+              autoFocus
               onChange={(e) => (username.current = e.target.value)}
             />
           </div>
@@ -56,6 +58,7 @@ const LoginComponent = () => {
             />
           </div>
           <Button
+            type="submit"
             className="login-buttton"
             variant="contained"
             onClick={handleLoginSubmit}

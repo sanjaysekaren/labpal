@@ -21,7 +21,7 @@ const UserResultComponent = (props) => {
       >
         <CardHeader
           avatar={
-            <Avatar sx={{ bgcolor: "wheat" }} aria-label="recipe">
+            <Avatar sx={{ bgcolor: "#0086B3" }} aria-label="recipe">
               {patient.name[0]}
             </Avatar>
           }

@@ -6,7 +6,7 @@
 
         .header-logo {
             margin: 7px;
-
+            cursor: pointer;
             img {
                 border-radius: 4px;
             }
@@ -30,7 +30,7 @@
                 display: flex;
                 flex-direction: column;
                 margin-right: 10px;
-
+                cursor: pointer;
                 svg {
                     margin: 10px 20px 0px;
                 }
@@ -69,6 +69,9 @@
                 }
             }
         }
+        .get-patient-details-button {
+            margin-top: 20px;
+        }
     }
 
     .patients-search-results-container {
@@ -76,9 +79,27 @@
         overflow: auto;
         -ms-overflow-style: none;
         scrollbar-width: none;
+        .no-results-found-container{
+            margin-top: 30px;
+            img {
+                border-radius: 10px;
+                height: 25em;
+                width: 25em;
+            }
+            p {
+                font-weight: 500;
+                font-size: 22px;
+            }
+        }
     }
     .patients-search-results-container::-webkit-scrollbar {
         display: none;
+    }
+    .progress-loader {
+        width: 100px;
+        height: 100px;
+        margin-top: 70px;
+        color: white;
     }
 }
 
@@ -97,7 +118,7 @@
     .card-result-item {
         text-align: center;
         margin: 0 auto;
-
+        cursor: pointer;
         .card-content-header {
             font-size: 24px;
             font-weight: 500;
@@ -226,6 +247,16 @@
                     margin-left: auto;
                 }
             }
+            .no-reports-found-container {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                img {
+                    width: 10em;
+                    height: 10em;
+                }
+            }
         }
     }
 
@@ -270,6 +301,12 @@
                 border: none;
                 width: 200px;
                 margin: 15px auto;
+            }
+            .progress-loader {
+                width: 60px;
+                height: 60px;
+                margin-top: 30px;
+                color: white;
             }
         }
     }

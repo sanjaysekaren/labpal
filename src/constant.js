@@ -1,1 +1,1 @@
-export const root_url = "http://13.50.226.36:3000/v1";
+export const root_url = "https://api-nonprod.rutohealth.in/v1";

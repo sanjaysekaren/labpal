@@ -2,10 +2,17 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { root_url } from "../constant";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Button, Card, CardContent, CardHeader } from "@mui/material";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CircularProgress,
+} from "@mui/material";
 import UserResultComponent from "./UserResultCard";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DownloadForOfflineIcon from "@mui/icons-material/DownloadForOffline";
+import noDataFound from "../assets/images/undraw_No_data_re_kwbl.png";
 
 const PatientComponent = () => {
   const location = useLocation();
@@ -15,6 +22,8 @@ const PatientComponent = () => {
   const [patientData, setPatientData] = useState({});
   const [reports, setReports] = useState([]);
   const [file, setFile] = useState();
+  const [loader, setLoader] = useState(false);
+  const [uploadLoader, setUploadLoader] = useState(false);
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -35,6 +44,7 @@ const PatientComponent = () => {
       }
     }
     async function getPatientReports() {
+      setLoader(true);
       const response = await axios.get(
         `${root_url}/reports?patientId=${userId}`,
         {
@@ -46,6 +56,7 @@ const PatientComponent = () => {
       if (response.status === 200) {
         setReports(response.data);
       }
+      setLoader(false);
     }
     fetchPatientData();
     getPatientReports();
@@ -61,6 +72,7 @@ const PatientComponent = () => {
       open(response.data.url);
     }
   };
+
   function open(url) {
     const win = window.open(url, "_blank");
     if (win != null) {
@@ -77,6 +89,7 @@ const PatientComponent = () => {
     if (!file) {
       return;
     }
+    setUploadLoader(true);
     let fileResponse = await getUploadFileDetails();
     if (fileResponse.status === 200) {
       uploadFileBasedOnURL(
@@ -84,6 +97,7 @@ const PatientComponent = () => {
         fileResponse.data.fileId
       );
     }
+    setUploadLoader(false);
   };
 
   const getUploadFileDetails = async () => {
@@ -99,11 +113,9 @@ const PatientComponent = () => {
   };
 
   const uploadFileBasedOnURL = async (uploadUrl, fileId) => {
-    const dataForm = new FormData();
-    dataForm.append("data", file);
-    let fileUploadResponse = await axios.put(uploadUrl, dataForm, {
+    let fileUploadResponse = await axios.put(uploadUrl, file, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        "Content-Type": file.type,
       },
     });
     if (fileUploadResponse.status === 200) {
@@ -112,7 +124,7 @@ const PatientComponent = () => {
   };
 
   const PostReportDetailsAfterFileUpload = async (fileId) => {
-    await axios.post(
+    let response = await axios.post(
       `${root_url}/reports`,
       {
         patientId: patientData.id,
@@ -125,82 +137,98 @@ const PatientComponent = () => {
         },
       }
     );
+    if (response.status === 200) {
+      setFile("");
+    }
   };
+
   return (
     <div>
       {!!patientData.id && (
         <div>
           <UserResultComponent patient={patientData} />
           <div className="patient-details-container">
-            {!!reports.length ? (
-              <Card className="reports-container">
-                <CardHeader
-                  title={`List of Available Reports for ${patientData.name}`}
-                ></CardHeader>
+            <Card className="reports-container">
+              <CardHeader
+                title={`List of Available Reports for ${patientData.name}`}
+              ></CardHeader>
+              {loader ? (
+                <CircularProgress className="progress-loader" />
+              ) : (
                 <CardContent className="reports-list-container">
-                  {reports.map((report) => {
-                    return (
-                      <div
-                        className="report-content"
-                        key={`report-${report.id}`}
-                      >
-                        <span className="report-name">{report.name}</span>
-                        <span className="report-created-date">
-                          {new Date(report.createdAt).toDateString()}
-                        </span>
-                        <span className="report-download">
-                          <DownloadForOfflineIcon
-                            onClick={() => handleGetReport(report.id)}
-                            sx={{ color: "#62ad62", fontSize: 30 }}
-                          />
-                        </span>
-                        <span className="report-delete">
-                          <DeleteOutlineIcon
-                            sx={{ color: "#e53d3d", fontSize: 30 }}
-                          />
-                        </span>
-                      </div>
-                    );
-                  })}
+                  {!!reports.length ? (
+                    <>
+                      {reports.map((report) => {
+                        return (
+                          <div
+                            className="report-content"
+                            key={`report-${report.id}`}
+                          >
+                            <span className="report-name">{report.name}</span>
+                            <span className="report-created-date">
+                              {new Date(report.createdAt).toDateString()}
+                            </span>
+                            <span className="report-download">
+                              <DownloadForOfflineIcon
+                                onClick={() => handleGetReport(report.id)}
+                                sx={{ color: "#62ad62", fontSize: 30 }}
+                              />
+                            </span>
+                            <span className="report-delete">
+                              <DeleteOutlineIcon
+                                sx={{ color: "#e53d3d", fontSize: 30 }}
+                              />
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </>
+                  ) : (
+                    <div className="no-reports-found-container">
+                      <img src={noDataFound} alt="logo" />
+                      <p>No Reports found for this Patient</p>
+                    </div>
+                  )}
                 </CardContent>
-              </Card>
-            ) : (
-              <div>No Reports found for this Patient</div>
-            )}
+              )}
+            </Card>
             <Card className="upload-container">
               <CardHeader title="Report:"></CardHeader>
-              <CardContent className="upload-container-button">
-                <div className="upload-area">
-                  {!!file && <div className="selected-file">{file && `${file.name} - ${file.type}`}</div>}
-                  <div className="buttons-container">
-                    
-                  <Button
-                    variant="contained"
-                    component="label"
-                    onClick={handleFileUpload}
-                  >
-                    Select Report
-                    <input
-                      hidden
-                      accept="image/*"
-                      type="file"
-                      onChange={handleFileChange}
-                    />
-                  </Button>
-                  {!!file && <Button className="remove-file" onClick={() => setFile(null)}>
-                    Remove File
-                  </Button>}
+              {uploadLoader ? (
+                <CircularProgress className="progress-loader" />
+              ) : (
+                <CardContent className="upload-container-button">
+                  <div className="upload-area">
+                    {!!file && (
+                      <div className="selected-file">
+                        {file && `${file.name} - ${file.type}`}
+                      </div>
+                    )}
+                    <div className="buttons-container">
+                      <Button variant="contained" component="label">
+                        Select Report
+                        <input hidden type="file" onChange={handleFileChange} />
+                      </Button>
+                      {!!file && (
+                        <Button
+                          className="remove-file"
+                          onClick={() => setFile("")}
+                        >
+                          Remove File
+                        </Button>
+                      )}
                     </div>
-                </div>
-                <Button
-                  className="upload-report-button"
-                  variant="contained"
-                  onClick={handleFileUpload}
-                  disabled={!file}
-                >
-                  Upload Report
-                </Button>
-              </CardContent>
+                  </div>
+                  <Button
+                    className="upload-report-button"
+                    variant="contained"
+                    onClick={handleFileUpload}
+                    disabled={!file}
+                  >
+                    Upload Report
+                  </Button>
+                </CardContent>
+              )}
             </Card>
           </div>
         </div>
