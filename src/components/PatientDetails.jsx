@@ -8,10 +8,12 @@ import {
   CardContent,
   CardHeader,
   CircularProgress,
+  Divider,
 } from "@mui/material";
 import UserResultComponent from "./UserResultCard";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DownloadForOfflineIcon from "@mui/icons-material/DownloadForOffline";
+import LaunchIcon from "@mui/icons-material/Launch";
 import noDataFound from "../assets/images/undraw_No_data_re_kwbl.png";
 
 const PatientComponent = () => {
@@ -43,24 +45,30 @@ const PatientComponent = () => {
         setPatientData(response.data);
       }
     }
+
+    fetchPatientData();
+  }, [userId]);
+
+  useEffect(() => {
     async function getPatientReports() {
       setLoader(true);
-      const response = await axios.get(
-        `${root_url}/reports?patientId=${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-          },
+      if (!file) {
+        const response = await axios.get(
+          `${root_url}/reports?patientId=${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+            },
+          }
+        );
+        if (response.status === 200) {
+          setReports(response.data);
         }
-      );
-      if (response.status === 200) {
-        setReports(response.data);
       }
       setLoader(false);
     }
-    fetchPatientData();
     getPatientReports();
-  }, [userId]);
+  }, [userId, file]);
 
   const handleGetReport = async (id) => {
     let response = await axios.get(`${root_url}/reports/${id}`, {
@@ -80,9 +88,15 @@ const PatientComponent = () => {
     }
   }
   const handleFileChange = (e) => {
+    console.log(e.target.files);
     if (e.target.files) {
       setFile(e.target.files[0]);
     }
+  };
+
+  const handleRemoveSelectedFile = () => {
+    setFile("");
+    document.getElementById("file").value = "";
   };
 
   const handleFileUpload = async () => {
@@ -138,7 +152,7 @@ const PatientComponent = () => {
       }
     );
     if (response.status === 200) {
-      setFile("");
+      handleRemoveSelectedFile();
     }
   };
 
@@ -164,21 +178,34 @@ const PatientComponent = () => {
                             className="report-content"
                             key={`report-${report.id}`}
                           >
-                            <span className="report-name">{report.name}</span>
-                            <span className="report-created-date">
-                              {new Date(report.createdAt).toDateString()}
-                            </span>
-                            <span className="report-download">
-                              <DownloadForOfflineIcon
+                            <div className="report-meta-details">
+                              <span className="report-name">{report.name}</span>
+                              <span className="report-created-date">
+                                {new Date(report.createdAt).toDateString()}
+                              </span>
+                            </div>
+                            <Divider className="report-divider"></Divider>
+                            <div className="report-action-buttons">
+                              <Button
+                                className="report-download"
+                                variant="contained"
                                 onClick={() => handleGetReport(report.id)}
-                                sx={{ color: "#62ad62", fontSize: 30 }}
-                              />
-                            </span>
-                            <span className="report-delete">
-                              <DeleteOutlineIcon
-                                sx={{ color: "#e53d3d", fontSize: 30 }}
-                              />
-                            </span>
+                              >
+                                View
+                                <LaunchIcon
+                                  sx={{ color: "#FFF", fontSize: 25 }}
+                                />
+                              </Button>
+                              <Button
+                                className="report-delete"
+                                variant="outlined"
+                              >
+                                Delete
+                                <DeleteOutlineIcon
+                                  sx={{ color: "#FFF", fontSize: 25 }}
+                                />
+                              </Button>
+                            </div>
                           </div>
                         );
                       })}
@@ -207,12 +234,17 @@ const PatientComponent = () => {
                     <div className="buttons-container">
                       <Button variant="contained" component="label">
                         Select Report
-                        <input hidden type="file" onChange={handleFileChange} />
+                        <input
+                          hidden
+                          id="file"
+                          type="file"
+                          onChange={handleFileChange}
+                        />
                       </Button>
                       {!!file && (
                         <Button
                           className="remove-file"
-                          onClick={() => setFile("")}
+                          onClick={handleRemoveSelectedFile}
                         >
                           Remove File
                         </Button>

@@ -7,6 +7,7 @@
         .header-logo {
             margin: 7px;
             cursor: pointer;
+
             img {
                 border-radius: 4px;
             }
@@ -31,6 +32,7 @@
                 flex-direction: column;
                 margin-right: 10px;
                 cursor: pointer;
+
                 svg {
                     margin: 10px 20px 0px;
                 }
@@ -58,7 +60,7 @@
 
         .add-patient-button-container {
             margin: 30px;
-            
+
             button {
                 color: white;
                 background-color: #39ac39;
@@ -69,6 +71,7 @@
                 }
             }
         }
+
         .get-patient-details-button {
             margin-top: 20px;
         }
@@ -79,22 +82,27 @@
         overflow: auto;
         -ms-overflow-style: none;
         scrollbar-width: none;
-        .no-results-found-container{
+
+        .no-results-found-container {
             margin-top: 30px;
+
             img {
                 border-radius: 10px;
                 height: 25em;
                 width: 25em;
             }
+
             p {
                 font-weight: 500;
                 font-size: 22px;
             }
         }
     }
+
     .patients-search-results-container::-webkit-scrollbar {
         display: none;
     }
+
     .progress-loader {
         width: 100px;
         height: 100px;
@@ -119,11 +127,12 @@
         text-align: center;
         margin: 0 auto;
         cursor: pointer;
+
         .card-content-header {
             font-size: 24px;
             font-weight: 500;
             text-align: left;
-            margin: 0 30px 30px;
+            margin: 0 15px 15px;
         }
 
         .card-content-fields {
@@ -213,45 +222,77 @@
 
 .patient-details-container {
     display: flex;
-    gap: 20px;
-    margin: 20px;
+    margin: 20px auto;
+    max-width: 1200px;
 
     .reports-container {
-        flex: 1 1 auto;
-        height: 25em;
-        margin: 10px;
+        flex: 1 1 75%;
+        height: 27em;
+        margin: 10px 10px 0 20px;
+
         .reports-list-container {
             overflow: auto;
-            height: 18em;
-
+            height: 20em;
+            display: flex;
+            flex-wrap: wrap;
             .report-content {
-                background: #F0F2F2;
-                padding: 5px 7px;
-                margin: 5px;
+                background: #f2f2f5;
+                width: 14em;
+                height: 14em;
+                padding: 15px;
+                margin: 7px;
                 display: flex;
+                flex-direction: column;
                 align-items: center;
                 gap: 15px;
+                justify-content: space-between;
+                border-radius: 20px;
+                .report-meta-details {
+                    display: flex;
+                    flex-direction: column;
+                    align-self: start;
+                    .report-name {
+                        font-weight: 500;
+                        font-size: 22px;
+                    }
 
-                .report-name {
-                    font-weight: 500;
-                    font-size: 22px;
+                    .report-created-date {
+                        font-weight: 400;
+                        font-size: 14px;
+                    }
                 }
 
-                .report-created-date {
-                    font-weight: 400;
-                    font-size: 14px;
+                .report-action-buttons {
+                    display: flex;
+                    gap: 10px;
+                    .report-download {
+                        margin-right: 0;
+                        margin-left: auto;
+                        width: 7em;
+                        height: 3em;
+                        margin-bottom: 10px;
+                    }
+                    .report-delete {
+                        background-color: #e64444;
+                        border: none;
+                        color: #fff;
+                        width: 7em;
+                        height: 3em;
+                    }
+                }
+                .report-divider {
+                    width: 100%;
+                    margin-top: 3em;
                 }
 
-                .report-download {
-                    margin-right: 0;
-                    margin-left: auto;
-                }
             }
+
             .no-reports-found-container {
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
+
                 img {
                     width: 10em;
                     height: 10em;
@@ -261,37 +302,44 @@
     }
 
     .upload-container {
-        flex: 1 1 15rem;
-        height: 25em;
-        margin: 10px;
+        flex: 1 1 25%;
+        height: 27em;
+        margin: 10px 20px 0 10px;
+
         .upload-container-button {
             display: flex;
             flex-direction: column;
+            margin-top: 3em;
 
             .upload-area {
-                width: 400px;
-                height: 200px;
+                width: 15em;
+                height: 12em;
                 margin: 0 auto;
                 border: 1px dotted rgb(112, 156, 238);
+
                 .selected-file {
                     background: #9faafb;
                     border-radius: 10px;
-                    padding: 10px;
-                    margin: 10px 10px 0 10px;
-                }
-                .buttons-container {
-                    display: flex;
-                    place-content: center;
-                    place-items: center;
-                    margin: 10%;
-                label {
-                    height: 40px;
+                    padding: 7px;
+                    margin: 5px 5px 0 5px;
                 }
 
-                .remove-file {
-                    height: 40px;
-                    display: block;
-                }
+                .buttons-container {
+                    display: flex;
+                    flex-direction: column;
+                    place-content: center;
+                    place-items: center;
+                    margin: 7%;
+
+                    label {
+                        height: 40px;
+                    }
+
+                    .remove-file {
+                        height: 40px;
+                        display: block;
+                        margin: auto;
+                    }
                 }
             }
 
@@ -302,6 +350,7 @@
                 width: 200px;
                 margin: 15px auto;
             }
+
             .progress-loader {
                 width: 60px;
                 height: 60px;
@@ -310,15 +359,19 @@
             }
         }
     }
-    @media (max-width: 767px) {
+
+    @media (max-width: 1200px) {
         display: block;
+
         .upload-container {
             .upload-container-button {
                 .upload-area {
                     width: 300px;
+
                     .buttons-container {
                         display: block;
-                        margin: 5%;
+                        margin: 5% auto;
+                        text-align: center;
                     }
                 }
             }
