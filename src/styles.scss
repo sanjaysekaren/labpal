@@ -309,13 +309,20 @@
         .upload-container-button {
             display: flex;
             flex-direction: column;
-            margin-top: 3em;
+            padding: 0 16px;
+            .select-diagnostic-area {
+                .select-diagnostic-drop-down {
+                    width: 100%;
+                    margin: 3px 0;
+                }
+            }
 
             .upload-area {
                 width: 15em;
-                height: 12em;
-                margin: 0 auto;
-                border: 1px dotted rgb(112, 156, 238);
+                height: 10em;
+                margin: 10px auto;
+                padding: 5px;
+                border: 2px dotted rgb(112, 156, 238);
 
                 .selected-file {
                     background: #9faafb;

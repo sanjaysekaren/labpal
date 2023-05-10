@@ -1,6 +1,4 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { root_url } from "../constant";
+import React, { useEffect, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   Button,
@@ -8,74 +6,106 @@ import {
   CardContent,
   CardHeader,
   CircularProgress,
-  Divider,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import UserResultComponent from "./UserResultCard";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import DownloadForOfflineIcon from "@mui/icons-material/DownloadForOffline";
-import LaunchIcon from "@mui/icons-material/Launch";
-import noDataFound from "../assets/images/undraw_No_data_re_kwbl.png";
+import ReportComponent from "./ReportComponent";
+import { fetchDiagnosticDataApi, fetchPatientDataApi, getPatientReportsApi, getUploadFileDetailsApi, handleDeleteReportApi, handleGetReportApi, uploadFileBasedOnURLApi } from "../services/api";
 
 const PatientComponent = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  let userId = location.state.id;
+  const userId = location.state.id;
 
   const [patientData, setPatientData] = useState({});
+  const [loader, setLoader] = useState(false);
   const [reports, setReports] = useState([]);
   const [file, setFile] = useState();
-  const [loader, setLoader] = useState(false);
   const [uploadLoader, setUploadLoader] = useState(false);
+  const [diagnosticData, setDiagnosticData] = useState([]);
+  const [selectedDiagnostic, setSelectedDiagnostic] = useState("");
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
     if (!token) {
       navigate("/login");
     }
-  }, [navigate]);
-
-  useEffect(() => {
     async function fetchPatientData() {
-      const response = await axios.get(`${root_url}/patients/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-        },
-      });
-      if (response.status === 200) {
-        setPatientData(response.data);
-      }
+      let records = await fetchPatientDataApi(userId);
+      setPatientData(records.data)
     }
-
+    async function fetchDiagnosticData() {
+      let records = await fetchDiagnosticDataApi();
+      setDiagnosticData(records.data);
+    }
     fetchPatientData();
-  }, [userId]);
+    fetchDiagnosticData();
+  }, [navigate, userId]);
+
+  const getPatientReports = useCallback(async (userId) => {
+    setLoader(true);
+    let response = await getPatientReportsApi(userId);
+    if (response.status === 200) {
+      setReports(response.data);
+    }
+    setLoader(false);
+  }, [])
 
   useEffect(() => {
-    async function getPatientReports() {
-      setLoader(true);
-      if (!file) {
-        const response = await axios.get(
-          `${root_url}/reports?patientId=${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-            },
-          }
-        );
-        if (response.status === 200) {
-          setReports(response.data);
-        }
-      }
-      setLoader(false);
+    getPatientReports(userId);
+  }, [userId, getPatientReports]);
+
+  const handleFileChange = (e) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
     }
-    getPatientReports();
-  }, [userId, file]);
+  };
+
+  const handleDiagnosticSelection = (e) => {
+    setSelectedDiagnostic(e.target.value)
+  }
+
+  const handleRemoveSelectedFile = async() => {
+    setFile();
+    let fileElement = document.getElementById("file");
+    if(fileElement) fileElement.value = "";
+    await getPatientReports(userId);
+  };
+
+  const handleFileUpload = async () => {
+    if (!file) {
+      return;
+    }
+    setUploadLoader(true);
+    let fileResponse = await getUploadFileDetailsApi();
+    if (fileResponse.status === 200) {
+      let response = await uploadFileBasedOnURLApi(
+        fileResponse.data.fileUploadUrl,
+        fileResponse.data.fileId,
+        patientData.id,
+        file,
+        selectedDiagnostic
+      );
+      setUploadLoader(false);
+      if (response.status === 200) {
+        await handleRemoveSelectedFile();
+      }
+    }
+    setUploadLoader(false);
+  };
+
+  const handleDeleteReport = async (id) => {
+    setLoader(true);
+    let response = await handleDeleteReportApi(id);
+    if (response.status === 200) {
+      await getPatientReports(userId);
+    }
+    setLoader(false);
+  }
 
   const handleGetReport = async (id) => {
-    let response = await axios.get(`${root_url}/reports/${id}`, {
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-      },
-    });
+    let response = await handleGetReportApi(id)
     if (response.status === 200) {
       open(response.data.url);
     }
@@ -87,74 +117,6 @@ const PatientComponent = () => {
       win.focus();
     }
   }
-  const handleFileChange = (e) => {
-    console.log(e.target.files);
-    if (e.target.files) {
-      setFile(e.target.files[0]);
-    }
-  };
-
-  const handleRemoveSelectedFile = () => {
-    setFile("");
-    document.getElementById("file").value = "";
-  };
-
-  const handleFileUpload = async () => {
-    if (!file) {
-      return;
-    }
-    setUploadLoader(true);
-    let fileResponse = await getUploadFileDetails();
-    if (fileResponse.status === 200) {
-      uploadFileBasedOnURL(
-        fileResponse.data.fileUploadUrl,
-        fileResponse.data.fileId
-      );
-    }
-    setUploadLoader(false);
-  };
-
-  const getUploadFileDetails = async () => {
-    return await axios.post(
-      `${root_url}/reports:upload`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-        },
-      }
-    );
-  };
-
-  const uploadFileBasedOnURL = async (uploadUrl, fileId) => {
-    let fileUploadResponse = await axios.put(uploadUrl, file, {
-      headers: {
-        "Content-Type": file.type,
-      },
-    });
-    if (fileUploadResponse.status === 200) {
-      await PostReportDetailsAfterFileUpload(fileId);
-    }
-  };
-
-  const PostReportDetailsAfterFileUpload = async (fileId) => {
-    let response = await axios.post(
-      `${root_url}/reports`,
-      {
-        patientId: patientData.id,
-        fileId: fileId,
-        diagnosticsId: 1,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-        },
-      }
-    );
-    if (response.status === 200) {
-      handleRemoveSelectedFile();
-    }
-  };
 
   return (
     <div>
@@ -162,69 +124,35 @@ const PatientComponent = () => {
         <div>
           <UserResultComponent patient={patientData} />
           <div className="patient-details-container">
-            <Card className="reports-container">
-              <CardHeader
-                title={`List of Available Reports for ${patientData.name}`}
-              ></CardHeader>
-              {loader ? (
-                <CircularProgress className="progress-loader" />
-              ) : (
-                <CardContent className="reports-list-container">
-                  {!!reports.length ? (
-                    <>
-                      {reports.map((report) => {
-                        return (
-                          <div
-                            className="report-content"
-                            key={`report-${report.id}`}
-                          >
-                            <div className="report-meta-details">
-                              <span className="report-name">{report.name}</span>
-                              <span className="report-created-date">
-                                {new Date(report.createdAt).toDateString()}
-                              </span>
-                            </div>
-                            <Divider className="report-divider"></Divider>
-                            <div className="report-action-buttons">
-                              <Button
-                                className="report-download"
-                                variant="contained"
-                                onClick={() => handleGetReport(report.id)}
-                              >
-                                View
-                                <LaunchIcon
-                                  sx={{ color: "#FFF", fontSize: 25 }}
-                                />
-                              </Button>
-                              <Button
-                                className="report-delete"
-                                variant="outlined"
-                              >
-                                Delete
-                                <DeleteOutlineIcon
-                                  sx={{ color: "#FFF", fontSize: 25 }}
-                                />
-                              </Button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </>
-                  ) : (
-                    <div className="no-reports-found-container">
-                      <img src={noDataFound} alt="logo" />
-                      <p>No Reports found for this Patient</p>
-                    </div>
-                  )}
-                </CardContent>
-              )}
-            </Card>
+            <ReportComponent
+              userId={userId}
+              patientData={patientData}
+              reports={reports}
+              loader={loader}
+              getPatientReports={() => getPatientReports(userId)}
+              handleDeleteReport={handleDeleteReport}
+              handleGetReport={handleGetReport}
+            />
             <Card className="upload-container">
               <CardHeader title="Report:"></CardHeader>
               {uploadLoader ? (
                 <CircularProgress className="progress-loader" />
               ) : (
                 <CardContent className="upload-container-button">
+                  <div className="select-diagnostic-area">
+                    <label>Select Diagnostic</label>
+                    <Select
+                      className="select-diagnostic-drop-down"
+                      value={selectedDiagnostic}
+                      onChange={handleDiagnosticSelection}
+                    >
+                      {diagnosticData.length && diagnosticData.map((diagnostic) => (
+                        <MenuItem value={diagnostic.id} key={diagnostic.id} selected>
+                          {diagnostic.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </div>
                   <div className="upload-area">
                     {!!file && (
                       <div className="selected-file">
@@ -255,7 +183,7 @@ const PatientComponent = () => {
                     className="upload-report-button"
                     variant="contained"
                     onClick={handleFileUpload}
-                    disabled={!file}
+                    disabled={!file || !selectedDiagnostic}
                   >
                     Upload Report
                   </Button>

@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs, { Dayjs } from "dayjs";
 import { root_url } from "../constant";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -19,9 +18,9 @@ import { useNavigate } from "react-router-dom";
 const initialState = {
   patientName: "",
   patientAge: "",
-  patientGender: "",
-  patientDOB: dayjs("2023-04-29"),
-  patientAddress: "",
+  patientGender: "male",
+  patientDOB: null,
+  patientAddress: "",   
   patientPhoneNumber: "",
 };
 
@@ -124,6 +123,7 @@ const AddPatientComponent = () => {
               className="add-patient-form-value gender-select"
               value={state.PatientGender}
               onChange={handleGenderChange}
+              defaultValue={"Male"}
             >
               <MenuItem disabled value={""}>
                 <em>Select Gender</em>
@@ -139,12 +139,13 @@ const AddPatientComponent = () => {
             <label className="add-patient-form-label">Date of Birth</label>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
-                label="Select/Enter Date"
+                label="Select/Enter Date Of Birth"
                 className="add-patient-form-value"
                 onChange={(newValue) =>
                   dispatch({ type: "handleDob", patientDOB: newValue })
                 }
                 value={state.patientDOB}
+                disableFuture
               />
             </LocalizationProvider>
           </div>

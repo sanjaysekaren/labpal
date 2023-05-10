@@ -20,7 +20,7 @@ const HeaderComponent = () => {
                 <span className='header-right-container'>
                     <div className='account-container' onClick={handleLogout}>
                         <AccountBoxIcon sx={{ color: "white", fontSize: 30 }} />
-                        <span className='icon-text'>Logout</span>
+                        <span className='icon-text'>{!sessionStorage.getItem("token") ? "Login" : "Logout"}</span>
                     </div>
                     <div className='account-container'>
                         <PhoneIcon sx={{ color: "white", fontSize: 30 }} />
